@@ -1,0 +1,1 @@
+// Prottipos de funicones y constantes genearles
