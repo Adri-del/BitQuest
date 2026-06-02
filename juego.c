@@ -1,6 +1,4 @@
 // Funciones del juego
-
-#include "mapas.h"
 #include "juego.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -63,6 +61,14 @@ void cargarMapa(Juego* juego, Mapa* mapa) { // Cargar el mapa del nivel actual
 
 void cambiarNivel(Juego* juego, Mapa* mapa) {
     if(juego->nivel < 3) { // Vamos al siguiente nivel
+        float nivel = (float)juego->nivel;
+        float contCoins = (float)juego->monedas[juego->nivel-1];
+        float totalCoins = (float)juego->monedasTotales[juego->nivel-1];
+        float pasos = (float)juego->pasos[juego->nivel-1];
+
+        // Calculamos el puntaje
+        juego->puntaje[juego->nivel-1] = calcularPuntaje(contCoins, totalCoins, pasos, nivel * 10000);
+
         mostrarResumenNivel(juego);
         juego->nivel++; 
         juego->llave = false; // Reseatemos bandera de llave
@@ -91,37 +97,38 @@ void moverJugador(Juego* juego, char direccion, Mapa* mapa) {
         // Derecha
         case 'd': newX++; break;
         case 'D': newX++; break;
-        case 'q': juego->posX = -1; 
-                    mostrarResumenJuego(juego);
-                    return; 
-            break;
-        case 'Q': juego->posX = -1; 
-                    mostrarResumenJuego(juego);
-                    return; 
+        case 'q': 
+                juego->posX = -1; 
+                mostrarResumenJuego(juego);
+                return; 
+                break;
+        case 'Q': 
+                juego->posX = -1; 
+                mostrarResumenJuego(juego);
+                return; 
             break;
         default: return; 
     }
 
-    // Cambiar por funcion de validacion de movimiento
     // Tambien verifica si el jugador tiene la llave
-    if (newX < 0 || newX >= mapa->tamMap || newY < 0 || newY >= mapa->tamMap) {
+    if (!validarMovimiento(mapa->mapa, juego->posX, juego->posY, newX, newY, juego->llave))
         return; 
-    }
 
     char casilla = mapa->mapa[newY][newX]; // Contenido de la siguiente casilla
-    switch(casilla) {
-        case 'D': if(juego->llave) { // Por si ocurrio un error en la validacion de movimiento
-                cambiarNivel(&juego->nivel, mapa); // Vamos al siguiente nivel
-            }
-        case 'M': // Aumenta el contador de monedas
-            juego->monedas[juego->nivel - 1]++;
-        case 'K': // Aumenta el contador de llaves
-            juego->llave = true;
-        case '.': // Casilla vacia, nos movemos
-            juego->posX = newX;
-            juego->posY = newY;
-            break;
-        default: break; // Situacion anomala
+    if(detectarObjeto(mapa->mapa, mapa->tamMap, newX, newY, 'D')) {
+        if(juego->llave) // Por si ocurrio un error en la validacion de movimiento
+                    cambiarNivel(juego, mapa); // Vamos al siguiente nivel
+    }
+
+    if(detectarObjeto(mapa->mapa, mapa->tamMap, newX, newY, 'M')) 
+        juego->monedas[juego->nivel - 1]++; // Aumenta el contador de monedas
+    
+    if(detectarObjeto(mapa->mapa, mapa->tamMap, newX, newY, 'K')) 
+        juego->monedas[juego->nivel - 1]++; // Aumenta el contador de llaves
+    
+    if(detectarObjeto(mapa->mapa, mapa->tamMap, newX, newY, '.')) { // Casilla vacia, nos movemos
+        juego->posX = newX;
+        juego->posY = newY;
     }
 }
 
@@ -132,7 +139,7 @@ void mostrarResumenJuego(Juego* juego) {
                                                         juego->monedasTotales[0] + juego->monedasTotales[1] + juego->monedasTotales[2]);
     printf("Pasos Totales: %d\n", juego->pasos[0] + juego->pasos[1] + juego->pasos[2]);
     printf("Niveles completados: %d / 3\n" , juego->nivel);
-    printf("Puntaje Final: %d\n", juego->puntaje[0] + juego->puntaje[1] + juego->puntaje[2]);
+    printf("Puntaje Final: %d\n", (int)(juego->puntaje[0] + juego->puntaje[1] + juego->puntaje[2]));
     printf("\n======================================\n");
 }
 
@@ -141,7 +148,7 @@ void mostrarResumenNivel(Juego *juego) {
     printf("Nivel: Completado\n");
     printf("Monedas: %d / %d\n", juego->monedas[juego->nivel - 1], juego->monedasTotales[juego->nivel - 1]);
     printf("Pasos: %d\n", juego->pasos[juego->nivel - 1]);
-    printf("Puntaje: %d\n", juego->puntaje[juego->nivel - 1]);
+    printf("Puntaje: %d\n", (int)(juego->puntaje[juego->nivel - 1]));
     printf("\n======================================\n");
 }
 
@@ -150,5 +157,5 @@ void mostrarStatus(Juego* juego) {
     printf("Llave: %s\n", juego->llave ? "Sí" : "No");
     printf("Pasos: %d\n", juego->pasos[juego->nivel - 1]);
     printf("Monedas: %d / %d\n", juego->monedas[juego->nivel - 1], juego->monedasTotales[juego->nivel - 1]);
-    printf("Puntaje: %d\n", juego->puntaje[juego->nivel - 1]);
 }
+
