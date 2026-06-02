@@ -1,7 +1,8 @@
 // Declaracion de los mapas de cada nivel
 
-#include <iostream>
+#include <stdio.h>
 
+// Definicion de los mapas de cada nivel
 const char* nivel1[60] = {
     "############################################################", 
     "#K..........#.......#.......#.......#.......#..........M...#", 
@@ -191,74 +192,10 @@ const char* nivel3[60] = {
     "#.################.####.####.######.####.######.######.#####", 
     "#..........................................M..............E#"  
 };
+typedef struct Mapa {
+    char** mapa; // Matriz del mapa
+    int tamMap; // Tamaño del mapa
+    int tamView; // Tamaño de la vista del mapa
+} Mapa;
 
-class Mapa {
-    private:
-        char** mapa;
-        int tamMap = 60;
-        int tamView = 20;
-    public:
 
-        Mapa() {
-            mapa = new char*[tamMap];
-            for(int i = 0; i < tamMap; i++) {
-                mapa[i] = new char[tamMap];
-            }
-        }
-        
-        ~Mapa() {
-            for(int i = 0; i < tamMap; i++) {
-                delete[] mapa[i];
-            }
-            delete[] mapa;
-        }
-
-        void cargarMapa(int nivel) {
-            switch (nivel) {
-            case 1:
-                    for(int i = 0; i < tamMap; i++) {
-                        for(int j = 0; j < tamMap; j++) {
-                            mapa[i][j] = nivel1[i][j];
-                        }
-                    }
-                break;
-            case 2:
-                    for(int i = 0; i < tamMap; i++) {
-                        for(int j = 0; j < tamMap; j++) {
-                            mapa[i][j] = nivel2[i][j];
-                        }
-                    }
-                break;
-            case 3:
-                    for(int i = 0; i < tamMap; i++) {
-                        for(int j = 0; j < tamMap; j++) {
-                            mapa[i][j] = nivel3[i][j];
-                        }
-                    }
-                break; 
-            default:
-                break;
-            }
-        }
-
-        void mostrarMapa(int posX, int posY) {
-            if (posX < 0 || posX >= 60 || posY < 0 || posY >= 60)  return;
-            int left = posX - (tamView / 2);
-            int above = posY - (tamView / 2);
-            int right = posX + (tamView / 2) -1;
-            int down = posY + (tamView / 2) -1;
-
-            for (int y = above; y <= down; y++) {
-                for (int x = left; x <= right; x++) {
-                    if (x < 0 || x >= 60 || y < 0 || y >= 60) {
-                        continue;
-                    } else if (x == posX && y == posY) {
-                        std::cout << 'P'; // Jugador
-                    } else {
-                        std::cout << mapa[y][x];
-                    }
-                }
-                std::cout << '\n';
-            }
-        }
-};
