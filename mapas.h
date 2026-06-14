@@ -3,8 +3,6 @@
 #define MAPAS_H
 
 #include <stdio.h>
-
-// Definicion de los mapas de cada nivel
 typedef struct Mapa {
     char** mapa; // Matriz del mapa
     int tamMap; // Tamaño del mapa
